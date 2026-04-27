@@ -447,8 +447,56 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
 /* ── RESPONSIVE DESIGN ── */
 @media (max-width: 1024px) {
   .logo-area { flex: 0 0 auto; }
-  .nav-links { display: none; } /* Hide center links on tablet/mobile or make them a menu */
+  .nav-links { display: none; } /* Mobile bottom nav instead */
+  
+  .nav-right .btn-nav-write, .nav-right .btn-nav-upload { display: none; }
+  
+  .nav-container { padding: 0 1.25rem; gap: 10px; }
+  .logo { font-size: 1rem; }
+  
+  h1 { font-size: 2rem; }
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .grid-section, .upload-section { padding: 0 1rem 4rem; }
+  
+  /* Bottom Nav */
+  .mobile-nav {
+    display: flex !important;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 65px; background: var(--bg2);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+    justify-content: space-around; align-items: center;
+    padding: 0 10px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+  }
+  .mobile-nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; color: var(--muted); text-decoration: none; font-size: 0.65rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; flex: 1;
+  }
+  .mobile-nav-item.active { color: var(--accent); }
+  .mobile-nav-item i { font-size: 1.2rem; }
+  
+  /* FAB for Mobile */
+  .fab-container {
+    display: block !important;
+    position: fixed; bottom: 85px; right: 20px; z-index: 999;
+  }
+  .fab {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    cursor: pointer; transition: all 0.3s; border: none;
+  }
+  .fab:active { transform: scale(0.9); }
+  
+  /* Modal responsive */
+  .modal { padding: 2rem 1.5rem !important; }
 }
+
+.mobile-nav, .fab-container { display: none; }
 
 @media (max-width: 768px) {
   nav { height: 60px; }
@@ -556,6 +604,23 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
     </div>
   </div>
 </nav>
+
+<!-- Mobile Bottom Navigation -->
+<div class="mobile-nav">
+  <div class="mobile-nav-item active" onclick="showPage('browse')"><i>📚</i><span>Browse</span></div>
+  <div class="mobile-nav-item" onclick="showPage('mynotes')"><i>📝</i><span>My Notes</span></div>
+  <div class="mobile-nav-item" onclick="showPage('bookmarks')"><i>⭐</i><span>Saved</span></div>
+  <div class="mobile-nav-item" onclick="openPricingModal()"><i>💎</i><span>Pro</span></div>
+</div>
+
+<!-- Floating Action Button for Mobile -->
+<div class="fab-container">
+  <button class="fab" onclick="toggleMobileActionSheet()">＋</button>
+  <div id="mobileActionSheet" style="display:none; position:absolute; bottom:70px; right:0; background:var(--bg2); border:1px solid var(--border); border-radius:16px; width:180px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:1001;">
+    <button onclick="openWrite(); toggleMobileActionSheet()" style="display:block; width:100%; text-align:left; padding:12px; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:0.9rem; cursor:pointer; border-radius:8px;">✍️ Write Note</button>
+    <button onclick="openUpload(); toggleMobileActionSheet()" style="display:block; width:100%; text-align:left; padding:12px; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:0.9rem; cursor:pointer; border-radius:8px;">📄 Upload PDF</button>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════ BROWSE PAGE ═══════════════════════════════ -->
 <div id="page-browse" class="page active">
@@ -1001,8 +1066,10 @@ function renderAdmin() {
 
 function updateNavActive(name) {
   const btns = document.querySelectorAll('#navLinks button');
+  const mobBtns = document.querySelectorAll('.mobile-nav-item');
   const map = { browse:0, mynotes:1, bookmarks:2 };
   btns.forEach((b,i) => b.classList.toggle('active', i === map[name]));
+  mobBtns.forEach((b,i) => b.classList.toggle('active', i === map[name]));
 }
 
 // ─── AUTH ───
@@ -1721,6 +1788,11 @@ function renderRecentNotes() {
     notes.sort((a,b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id));
     grid.innerHTML = notes.map(cardHTML).join('');
   }
+}
+
+function toggleMobileActionSheet() {
+  const el = document.getElementById('mobileActionSheet');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 init();
