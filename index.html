@@ -447,75 +447,46 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
 /* ── RESPONSIVE DESIGN ── */
 @media (max-width: 1024px) {
   .logo-area { flex: 0 0 auto; }
-  .nav-links { display: none; } /* Mobile bottom nav instead */
+  .nav-links { display: none; }
+  .menu-toggle { display: flex !important; }
   
-  .nav-right .btn-nav-write, .nav-right .btn-nav-upload { display: none; }
-  
-  .nav-container { padding: 0 1.25rem; gap: 10px; }
-  .logo { font-size: 1rem; }
-  
-  h1 { font-size: 2rem; }
-  .hero { padding: 4rem 1.5rem 2rem; }
-  .grid-section, .upload-section { padding: 0 1rem 4rem; }
-  
-  /* Bottom Nav */
-  .mobile-nav {
-    display: flex !important;
-    position: fixed; bottom: 0; left: 0; right: 0;
-    height: 65px; background: var(--bg2);
-    border-top: 1px solid var(--border);
-    backdrop-filter: blur(15px);
-    z-index: 1000;
-    justify-content: space-around; align-items: center;
-    padding: 0 10px;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-  }
-  .mobile-nav-item {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 4px; color: var(--muted); text-decoration: none; font-size: 0.65rem; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; flex: 1;
-  }
-  .mobile-nav-item.active { color: var(--accent); }
-  .mobile-nav-item i { font-size: 1.2rem; }
-  
-  /* FAB for Mobile */
-  .fab-container {
+  .mobile-sidebar {
     display: block !important;
-    position: fixed; bottom: 85px; right: 20px; z-index: 999;
+    position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
+    background: var(--bg2); border-left: 1px solid var(--border);
+    z-index: 2000; padding: 2rem 1.5rem;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.3);
   }
-  .fab {
-    width: 56px; height: 56px; border-radius: 50%;
-    background: var(--accent); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    cursor: pointer; transition: all 0.3s; border: none;
+  .mobile-sidebar.open { transform: translateX(-280px); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px); z-index: 1999;
   }
-  .fab:active { transform: scale(0.9); }
+  .sidebar-overlay.open { display: block; }
   
-  /* Modal responsive */
-  .modal { padding: 2rem 1.5rem !important; }
+  .sidebar-links { display: flex; flex-direction: column; gap: 10px; margin-top: 2rem; }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    background: var(--bg3); border-radius: 12px; color: var(--text);
+    text-decoration: none; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+  }
+  .sidebar-link:hover { background: var(--bg2); border: 1px solid var(--accent); }
+  .sidebar-link.pro { color: var(--accent); border: 1px solid rgba(99,102,241,0.2); }
 }
 
-.mobile-nav, .fab-container { display: none; }
+.menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; color: var(--text); }
+.mobile-sidebar, .sidebar-overlay { display: none; }
 
 @media (max-width: 768px) {
-  nav { height: 60px; }
-  .nav-container { padding: 0 1rem; gap: 8px; }
-  .nav-links { display: none; } 
-  .logo { font-size: 0.95rem; }
-  .nav-right .btn-ghost { display: none; }
-}
-  
-  .hero { padding: 2.5rem 1rem 1.5rem; }
-  .hero::before { width: 100%; height: 200px; }
-  
-  .grid-section, .upload-section, .page-content { padding: 0 1rem 2rem; }
-  .stats { gap: 1rem; padding: 1rem 1rem 2rem; }
-  
-  .modal { padding: 1.5rem; margin: 1rem; }
-  .login-card { padding: 2rem 1.5rem; border-radius: 12px; }
-  
-  .pdf-toolbar { padding: 12px 1rem; flex-direction: column; gap: 10px; text-align: center; }
+  nav { height: 65px; }
+  .nav-container { padding: 0 1.25rem; gap: 10px; }
+  .logo { font-size: 1rem; }
+  h1 { font-size: 2.2rem; }
+  .hero { padding: 4rem 1.5rem 2rem; }
+  .grid-section, .upload-section { padding: 0 1rem 4rem; }
+  .modal { padding: 2rem 1.5rem !important; }
+  .pdf-toolbar { flex-direction: column; gap: 10px; text-align: center; }
   .pdf-controls { width: 100%; justify-content: center; }
   .pdf-canvas-wrap { padding: 1rem 0; }
 }
@@ -601,24 +572,26 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
 
     <div class="nav-right" id="navRight">
        <!-- Dynamic: Timer, Theme, Login/Avatar -->
+       <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
     </div>
   </div>
 </nav>
 
-<!-- Mobile Bottom Navigation -->
-<div class="mobile-nav">
-  <div class="mobile-nav-item active" onclick="showPage('browse')"><i>📚</i><span>Browse</span></div>
-  <div class="mobile-nav-item" onclick="showPage('mynotes')"><i>📝</i><span>My Notes</span></div>
-  <div class="mobile-nav-item" onclick="showPage('bookmarks')"><i>⭐</i><span>Saved</span></div>
-  <div class="mobile-nav-item" onclick="openPricingModal()"><i>💎</i><span>Pro</span></div>
-</div>
-
-<!-- Floating Action Button for Mobile -->
-<div class="fab-container">
-  <button class="fab" onclick="toggleMobileActionSheet()">＋</button>
-  <div id="mobileActionSheet" style="display:none; position:absolute; bottom:70px; right:0; background:var(--bg2); border:1px solid var(--border); border-radius:16px; width:180px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,0.3); z-index:1001;">
-    <button onclick="openWrite(); toggleMobileActionSheet()" style="display:block; width:100%; text-align:left; padding:12px; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:0.9rem; cursor:pointer; border-radius:8px;">✍️ Write Note</button>
-    <button onclick="openUpload(); toggleMobileActionSheet()" style="display:block; width:100%; text-align:left; padding:12px; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:0.9rem; cursor:pointer; border-radius:8px;">📄 Upload PDF</button>
+<!-- Mobile Sidebar (Drawer) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="mobile-sidebar" id="mobileSidebar">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <div class="logo" style="pointer-events:none;"><div class="logo-icon">N</div> NoteVault</div>
+    <div onclick="toggleSidebar()" style="font-size:1.5rem; cursor:pointer;">✕</div>
+  </div>
+  <div class="sidebar-links">
+    <div class="sidebar-link" onclick="showPage('browse'); toggleSidebar()"><i>📚</i> Browse Library</div>
+    <div class="sidebar-link" onclick="showPage('mynotes'); toggleSidebar()"><i>📝</i> My Notes</div>
+    <div class="sidebar-link" onclick="showPage('bookmarks'); toggleSidebar()"><i>⭐</i> Bookmarks</div>
+    <div class="sidebar-link pro" onclick="openPricingModal(); toggleSidebar()"><i>💎</i> Pricing Plans</div>
+    <div class="divider" style="border-top:1px solid var(--border); margin:10px 0;"></div>
+    <div class="sidebar-link" onclick="openWrite(); toggleSidebar()" style="color:var(--accent);">✍️ Write New Note</div>
+    <div class="sidebar-link" onclick="openUpload(); toggleSidebar()" style="color:var(--accent2);">📄 Upload PDF</div>
   </div>
 </div>
 
@@ -1790,9 +1763,9 @@ function renderRecentNotes() {
   }
 }
 
-function toggleMobileActionSheet() {
-  const el = document.getElementById('mobileActionSheet');
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+function toggleSidebar() {
+  document.getElementById('mobileSidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 
 init();
