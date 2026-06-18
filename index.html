@@ -86,9 +86,7 @@ nav {
 .logo { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700; color: var(--text); text-decoration: none; cursor: pointer; }
 .logo-icon {
   width: 32px; height: 32px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700; color: #fff;
+  border-radius: 8px; object-fit: cover; display: block;
 }
 .nav-links { display: flex; gap: 8px; align-items: center; }
 .nav-links button {
@@ -560,7 +558,7 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
   <div class="nav-container">
     <div class="logo-area">
       <div class="logo" onclick="showPage('browse')">
-        <div class="logo-icon">N</div>
+        <img class="logo-icon" src="favicon.png" alt="NoteVault logo">
         NoteVault
       </div>
     </div>
@@ -583,7 +581,7 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="mobile-sidebar" id="mobileSidebar">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <div class="logo" style="pointer-events:none;"><div class="logo-icon">N</div> NoteVault</div>
+    <div class="logo" style="pointer-events:none;"><img class="logo-icon" src="favicon.png" alt="NoteVault logo"> NoteVault</div>
     <div onclick="toggleSidebar()" style="font-size:1.5rem; cursor:pointer;">✕</div>
   </div>
   <div class="sidebar-links">
