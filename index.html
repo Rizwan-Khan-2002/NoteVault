@@ -808,6 +808,19 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
 </div>
 
 <!-- ═══════════════════════════════ PRICING MODAL ═══════════════════════════════ -->
+<!-- ═══════════════════════════════ CONFIRM MODAL ═══════════════════════════════ -->
+<div class="modal-overlay" id="confirmModal" onclick="closeOnOverlay(event,'confirmModal')">
+  <div class="modal" style="max-width:420px;">
+    <div style="font-size:2.2rem; margin-bottom:0.5rem;" id="confirmIcon">⚠️</div>
+    <h3 id="confirmTitle" style="margin-bottom:0.75rem;">Are you sure?</h3>
+    <p id="confirmMessage" style="color:var(--muted); font-size:0.92rem; line-height:1.65; margin:0;"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" id="confirmOkBtn" onclick="confirmProceed()" style="background:var(--danger); border-color:var(--danger);">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="pricingModal" onclick="closeOnOverlay(event,'pricingModal')">
   <div class="modal" style="max-width:850px; width:95%; padding:3rem 2rem; text-align:center; background:var(--bg2);">
     <button class="close-btn" onclick="closeModal('pricingModal')">✕</button>
@@ -1060,17 +1073,25 @@ function renderAdmin() {
   }).catch(err => console.error('Admin err:', err));
 }
 
-async function deleteUser(uid, email) {
+function deleteUser(uid, email) {
   if (currentUser?.email !== ADMIN_EMAIL) { showNotif('Only Admin can delete users.', 'error'); return; }
   if (email === currentUser?.email) { showNotif('You cannot delete your own admin account.', 'error'); return; }
-  if (!confirm('Remove user "' + email + '" from NoteVault?\n\n(This removes them from the list. To fully delete their login, also remove them in Firebase Console > Authentication.)')) return;
-  try {
-    await db.collection('users').doc(uid).delete();
-    showNotif('User removed: ' + email, 'success');
-    renderAdmin();
-  } catch(err) {
-    showNotif(err.message, 'error');
-  }
+  const safeEmail = String(email).replace(/</g, '&lt;');
+  showConfirm(
+    'Remove this user?',
+    'Remove <b style="color:var(--text);">' + safeEmail + '</b> from NoteVault?<br><br>' +
+    '<span style="font-size:0.8rem; color:var(--muted);">This removes them from the list. To fully delete their login, also remove them in Firebase Console &rsaquo; Authentication.</span>',
+    async () => {
+      try {
+        await db.collection('users').doc(uid).delete();
+        showNotif('User removed: ' + email, 'success');
+        renderAdmin();
+      } catch(err) {
+        showNotif(err.message, 'error');
+      }
+    },
+    'Delete', '🗑️'
+  );
 }
 
 function updateNavActive(name) {
@@ -1470,6 +1491,22 @@ function openUpload() {
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeOnOverlay(e, id) { if (e.target === document.getElementById(id)) closeModal(id); }
+
+let _confirmCb = null;
+function showConfirm(title, messageHtml, onConfirm, okLabel = 'Confirm', icon = '⚠️') {
+  document.getElementById('confirmIcon').textContent = icon;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').innerHTML = messageHtml;
+  document.getElementById('confirmOkBtn').textContent = okLabel;
+  _confirmCb = onConfirm;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function confirmProceed() {
+  const cb = _confirmCb;
+  _confirmCb = null;
+  closeModal('confirmModal');
+  if (cb) cb();
+}
 
 function handleFileSelect(e) {
   const file = e.target.files[0];
