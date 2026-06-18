@@ -716,6 +716,9 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
         <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" /></div>
         <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" /></div>
         <button class="btn btn-primary" style="width:100%;padding:12px;font-size:0.95rem;margin-top:0.5rem" onclick="handleLogin()">Sign In</button>
+        <p style="margin-top:0.9rem;text-align:center;font-size:0.85rem;">
+          <a href="#" onclick="handleForgotPassword(); return false;" style="color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;">Forgot password?</a>
+        </p>
       </div>
       <div id="signupForm" style="display:none">
         <div class="form-group"><label>Name</label><input type="text" id="signupName" placeholder="Your full name" /></div>
@@ -1064,6 +1067,20 @@ async function handleLogin() {
     showNotif('Welcome back! 👋','success');
   } catch(err) {
     document.querySelector('#signinForm button').textContent = 'Sign In';
+    showNotif(err.message, 'error');
+  }
+}
+
+async function handleForgotPassword() {
+  let email = document.getElementById('loginEmail').value.trim();
+  if (!email) {
+    email = (prompt('Enter your account email to receive a password reset link:') || '').trim();
+  }
+  if (!email) return;
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showNotif('Password reset link sent to ' + email + '. Check your inbox (and spam).', 'success');
+  } catch(err) {
     showNotif(err.message, 'error');
   }
 }
