@@ -983,6 +983,18 @@ function init() {
   auth.onAuthStateChanged(user => {
     if (user) {
       currentUser = { name: user.displayName || user.email.split('@')[0], email: user.email, uid: user.uid, photoURL: user.photoURL };
+      // Self-heal: ensure this user has a record in the users collection
+      // (accounts created before this existed, or via password reset, may be missing one).
+      const uref = db.collection('users').doc(user.uid);
+      uref.get().then(d => {
+        if (!d.exists) {
+          uref.set({
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => { if (currentUser?.email === ADMIN_EMAIL) renderAdmin(); });
+        }
+      }).catch(err => console.error('User sync err:', err));
       if (localStorage.getItem('nv_theme') === 'light') document.documentElement.classList.add('light-mode');
       renderLoggedIn();
       document.querySelector('nav').style.display = 'flex';
