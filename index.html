@@ -692,6 +692,7 @@ footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center;
             <th style="padding:10px 8px;">Name</th>
             <th style="padding:10px 8px;">Email</th>
             <th style="padding:10px 8px;">Password</th>
+            <th style="padding:10px 8px; text-align:right;">Action</th>
           </tr>
         </thead>
         <tbody id="adminUserList">
@@ -1040,16 +1041,36 @@ function renderAdmin() {
     let html = '';
     snap.forEach(doc => {
       const u = doc.data();
+      const isSelf = u.email === currentUser?.email;
       html += `
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:12px 8px; color:var(--text); font-weight:600;">${u.name || 'User'}</td>
           <td style="padding:12px 8px; color:var(--muted);">${u.email}</td>
           <td style="padding:12px 8px; color:var(--danger); font-family:monospace;">[Secured by Firebase]</td>
+          <td style="padding:12px 8px; text-align:right;">
+            ${isSelf
+              ? `<span style="color:var(--muted); font-size:0.8rem;">You</span>`
+              : `<button onclick="deleteUser('${doc.id}','${(u.email || '').replace(/'/g, "\\'")}')" title="Remove user" style="background:none; border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.8rem; font-weight:600;">🗑 Delete</button>`
+            }
+          </td>
         </tr>
       `;
     });
     document.getElementById('adminUserList').innerHTML = html;
   }).catch(err => console.error('Admin err:', err));
+}
+
+async function deleteUser(uid, email) {
+  if (currentUser?.email !== ADMIN_EMAIL) { showNotif('Only Admin can delete users.', 'error'); return; }
+  if (email === currentUser?.email) { showNotif('You cannot delete your own admin account.', 'error'); return; }
+  if (!confirm('Remove user "' + email + '" from NoteVault?\n\n(This removes them from the list. To fully delete their login, also remove them in Firebase Console > Authentication.)')) return;
+  try {
+    await db.collection('users').doc(uid).delete();
+    showNotif('User removed: ' + email, 'success');
+    renderAdmin();
+  } catch(err) {
+    showNotif(err.message, 'error');
+  }
 }
 
 function updateNavActive(name) {
